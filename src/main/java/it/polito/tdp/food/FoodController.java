@@ -5,8 +5,11 @@
 package it.polito.tdp.food;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import it.polito.tdp.food.model.Model;
+import it.polito.tdp.food.model.Portion;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -40,7 +43,7 @@ public class FoodController {
     private Button btnCammino; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxPorzioni"
-    private ComboBox<?> boxPorzioni; // Value injected by FXMLLoader
+    private ComboBox<String> boxPorzioni; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
@@ -48,21 +51,36 @@ public class FoodController {
     @FXML
     void doCammino(ActionEvent event) {
     	txtResult.clear();
-    	txtResult.appendText("Cerco cammino peso massimo...");
+    	txtResult.appendText("Cerco cammino peso massimo...\n");
+    	int N = Integer.parseInt(this.txtPassi.getText());
+    	String partenza = this.boxPorzioni.getValue();
+    	List<String> res = model.cercaCammino(N, partenza);
+    	if(res.size() == 0)
+    		this.txtResult.appendText("NESSUN PERCORSO TROVATO");
+    	for(String s: res)
+    		this.txtResult.appendText(s + "\n");
+    	this.txtResult.appendText("PESO TOTALE: " + model.contaPeso(res));
     }
 
     @FXML
     void doCorrelate(ActionEvent event) {
     	txtResult.clear();
-    	txtResult.appendText("Cerco porzioni correlate...");
-    	
+    	txtResult.appendText("Cerco porzioni correlate...\n");
+    	List<String> correlate = new ArrayList<>(this.model.getCorrelate(this.boxPorzioni.getValue()));
+    	for(String s: correlate)
+    		this.txtResult.appendText(s);
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
     	txtResult.clear();
     	txtResult.appendText("Creazione grafo...");
-    	
+    	int c = Integer.parseInt(this.txtCalorie.getText());
+    	this.model.creaGrafo(c, this.boxPorzioni.getValue());
+    	this.boxPorzioni.getItems().addAll(model.getAllPortions(c));
+    	this.txtResult.appendText("#VERTICI: "+ model.getNumVertici());
+    	this.txtResult.appendText("#ARCHI: "+ model.getNumArchi());
+
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
